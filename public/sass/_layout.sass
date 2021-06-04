@@ -1,0 +1,25 @@
+.page
+    display: grid
+    grid-template-columns: 33rem 1fr
+    background: $dark
+    height: 100vh
+
+    @include breakpoint(medium)
+        grid-template-columns: 1fr
+
+.side
+    background: $darker
+    padding: 4rem
+    display: grid
+    grid-template-rows: auto 1fr auto
+
+    @include breakpoint(medium)
+        display: none
+
+.main
+    padding: 4rem 1.6rem 12rem
+    overflow-y: auto
+
+.container
+    max-width: 80rem
+    margin: 0 auto

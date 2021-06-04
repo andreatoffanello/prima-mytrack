@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+        <title>MyTrack</title>
+        <meta name="title" content="MyTrack">
+        <meta name="description" content="With MyTrack you can create and manage your ToDo list for you and your team.">
+
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="https://metatags.io/">
+        <meta property="og:title" content="MyTrack">
+        <meta property="og:description" content="With MyTrack you can create and manage your ToDo list for you and your team.">
+        <meta property="og:image" content="images/cover.png">
+
+        <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+        <link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#83ca4d">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="stylesheet" href="css/style.min.css">
+
+        <script src="https://unpkg.com/vue@next"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+        <script type="text/javascript" src="js/main.js"></script>
+    </head>
+    <body>
+
+        <div id="mytrack" class="page">
+
+            <div class="side">
+
+                <div class="side_header">
+                    <h1>MyTrack</h1>
+                </div>
+
+
+                <div class="menu">
+
+                    <a href="" class="menu_item selected">
+                        <i class="icon-dashboard"></i>
+                        <span class="item_label">Dashboard</span>
+                        <span class="counter">{{complNumber}}/{{complNumber + todoNumber}}</span>
+                    </a>
+
+                    <a href="" class="menu_item">
+                        <i class="icon-calendar"></i>
+                        <span class="item_label">Calendar</span>
+                    </a>
+
+                    <a href="" class="menu_item">
+                        <i class="icon-teams"></i>
+                        <span class="item_label">Team</span>
+                    </a>
+
+                    <a href="" class="menu_item">
+                        <i class="icon-charts"></i>
+                        <span class="item_label">Charts</span>
+
+                    </a>
+
+                </div>
+
+                <div class="side_bottom">
+
+                    <a href="#">
+                        <i class="icon-settings"></i>
+                        <span>Settings</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="main">
+
+                <div class="container">
+
+                    <div class="block nodesktop">
+                        <h1 class="pagetitle">MyTrack</h1>
+                    </div>
+
+                    <div class="block nodesktop">
+                        <div class="add_task_button" @click="addNewPopup">
+                            <div class="content">
+                                <span>New Task</span>
+                                <i class="icon-add"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="block nomobile">
+
+                        <div class="block_header">
+                            <h2>New task</h2>
+                        </div>
+
+                        <div class="task input">
+                            <input class="textinput" type="text" name="" placeholder="Insert task title..." v-model="newTask.content" @keyup="inputCheck">
+
+                            <span class="priority_label">High Priority</span>
+
+                            <input class="toggle" id="checkbox-id" type="checkbox" v-model="newTask.highPriority">
+
+                            <div :class="inputDisabled ? 'disabled' : 'active'" class="button" @click="addTask">
+                                <span>ADD</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div v-if="activeTasks.length" class="block">
+
+                        <div class="block_header">
+                            <h2>In progress</h2>
+                            <div class="counter_wrapper">
+                                <span class="counter">{{todoNumber}}</span>
+                            </div>
+                        </div>
+
+                        <div v-for="(task, index) in activeTasks" :key="task" class="task single">
+
+                            <div class="checkbox_wrapper"  @click="updateComplete(task)">
+                                <input class="checkbox" :id="'cb-' + task.taskId" type="checkbox" value="">
+                                <label :for="'cb-' + task.taskId"></label>
+                            </div>
+
+                            <div class="priority" :class="task.highPriority ? 'high' : ''"></div>
+
+                            <span class="task_label" @click="openEdit(task, index)">{{task.content}}</span>
+
+                            <div class="controls" @click="removeTask(task)">
+                                <i class="icon-trash"></i>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div v-if="completedTasks.length" class="block">
+                        <div class="block_header">
+                            <h2>Done</h2>
+                            <div class="counter_wrapper">
+                                <span class="counter">{{complNumber}}</span>
+                            </div>
+                        </div>
+
+                        <div v-for="task in completedTasks" :key="task" class="task single completed">
+                            <div class="checkbox_wrapper" @click="updateActive(task)">
+                                <input class="checkbox" :id="'cb-' + task.taskId" type="checkbox" value="" checked>
+                                <label :for="'cb-' + task.taskId"></label>
+                            </div>
+
+                            <div class="priority" :class="task.highPriority ? 'high' : ''"></div>
+
+                            <span class="task_label">{{task.content}}</span>
+
+                            <!-- <div class="controls">
+                                <i class="icon-trash"></i>
+                            </div> -->
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="popup_wrapper" :class="popupOpen ? 'open' : ''">
+
+                <div v-if="newTaskModal">
+
+                    <div class="popup new">
+
+                        <div class="popup_header">
+                            <span>New task</span>
+                            <i class="icon-close" @click="closePopup"></i>
+                        </div>
+
+                        <div class="task input">
+                            <textarea class="textinput" type="text" name="" placeholder="Insert task title..." v-model="newTask.content" @keyup="inputCheck"></textarea>
+
+                            <span class="priority_label">High Priority</span>
+
+                            <input class="toggle" id="checkbox-id" type="checkbox" v-model="newTask.highPriority">
+
+                            <div :class="inputDisabled ? 'disabled' : 'active'" class="button" @click="addTask">
+                                <span>ADD</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <div v-if="editTask">
+
+                    <div class="popup edit">
+
+                        <div class="popup_header">
+                            <div class="priority" :class="editTask.highPriority ? 'high' : ''"></div>
+                            <span>Task</span>
+                            <i class="icon-close" @click="closePopup"></i>
+                        </div>
+
+                        <div class="task single edit">
+
+                            <span class="task_label">{{editTask.content}}</span>
+
+                            <div class="">
+
+                                <div class="button icon delete" @click="removeTask(editTask)">
+                                    <i class="icon-trash"></i>
+                                </div>
+
+                            </div>
+
+
+                            <div class="">
+
+                                <div class="button confirm" @click="updateComplete(editTask)">
+                                    <span>Complete</span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+            <div class="bottom_bar nodesktop">
+
+                    <a href="" class="bb_item selected">
+                        <i class="icon-dashboard"></i>
+                        <span class="item_label">Dashboard</span>
+                    </a>
+
+                    <a href="" class="bb_item">
+                        <i class="icon-calendar"></i>
+                        <span class="item_label">Calendar</span>
+                    </a>
+
+                    <a href="" class="bb_item">
+                        <i class="icon-teams"></i>
+                        <span class="item_label">Team</span>
+                    </a>
+
+                    <a href="" class="bb_item">
+                        <i class="icon-charts"></i>
+                        <span class="item_label">Charts</span>
+                    </a>
+
+                    <a href="" class="bb_item">
+                        <i class="icon-settings"></i>
+                        <span class="item_label">Settings</span>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+
+
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,49 @@
+@mixin breakpoint($point)
+    @if $point == desktop
+        @media (min-width: 992px)
+            @content
+
+    @else if $point == largescreen
+        @media (min-width: 1600px)
+            @content
+
+    @else if $point == medium
+        @media (max-width: 768px)
+            @content
+
+    @else if $point == mobile
+        @media (max-width: 414px)
+            @content
+
+
+
+$ease: cubic-bezier( 0.5, 0, 0, 1 )
+$ease-out: cubic-bezier( 0, 0, 0, 1 )
+
+$xsmall: .8rem
+$small: 1.2rem
+$sregular: 1.4rem
+$regular: 1.6rem
+$slarge: 2rem
+$large: 2.4rem
+$xlarge: 4.8rem
+
+p, span, a, div, input
+    font-size: $regular
+
+
+.textinput::placeholder
+    color: $disabled
+
+
+.nodesktop
+    display: none
+
+    @include breakpoint(medium)
+        display: inherit
+
+
+
+.nomobile
+    @include breakpoint(medium)
+        display: none!important
